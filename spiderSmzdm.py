@@ -9,16 +9,19 @@ import threading
 from bs4 import BeautifulSoup
 
 def getHtml(url, header, i):
-    url = url + str(i)
+    url = url + '/' + str(i)
+    print "url", url
     req = urllib2.Request(url, headers = header)
     con = urllib2.urlopen(req, timeout = 1)
     html = con.read()
+    print "html", html
     con.close()
     getContentOne(html)
 
 def getContentOne(html):
-    soup = BeautifulSoup(html)
+    soup = BeautifulSoup(html, "html.parser")
     soup.prettify()
+    print "soup", soup
     one = soup.html.body.find_all('a', {'class' : 'mall'})
     getContentTwo(one)
 
@@ -54,9 +57,11 @@ header = {'Host': 'www.smzdm.com',
         'Connection': 'keep-alive'}
 
 
-i    = 30
-lock = threading.Lock()
+if __name__ == "__main__":
+    i    = 6755500
+    lock = threading.Lock()
 
-for k in range(10):
-    new_thread = threading.Thread(target=booth,args=(k, url, header))   # Set up thread; target: the callable (function) to be run, args: the argument for the callable 
-    new_thread.start()
+    booth(0, url, header)
+    #for k in range(10):
+    #    new_thread = threading.Thread(target=booth,args=(k, url, header))   # Set up thread; target: the callable (function) to be run, args: the argument for the callable 
+    #    new_thread.start()
