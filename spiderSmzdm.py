@@ -9,7 +9,7 @@ import threading
 from bs4 import BeautifulSoup
 
 def getHtml(url, header, i):
-    url = url + '/' + str(i)
+    url = url + '/' + str(i) + "/"
     print "url", url
     req = urllib2.Request(url, headers = header)
     con = urllib2.urlopen(req, timeout = 1)
@@ -22,14 +22,16 @@ def getContentOne(html):
     soup = BeautifulSoup(html, "html.parser")
     soup.prettify()
     print "soup", soup
-    one = soup.html.body.find_all('a', {'class' : 'mall'})
-    getContentTwo(one)
+#    one = soup.html.body.find_all('a', {'class' : 'mall'})
+    ar = soup.html.body.find_all('div', class_ = 'article-right')
+    print "ararar", ar
+#    getContentTwo(ar)
 
 def getContentTwo(html):
     for x in html:
-        soup = BeautifulSoup(str(x))
+        soup = BeautifulSoup(str(x)).decode("gbk")
         two = soup.get_text()
-        print two
+        print "twotwotwo", two
 
 def doChore():
     time.sleep(0.5)
@@ -40,10 +42,10 @@ def booth(tid, url, header):
     while True:
         lock.acquire()
         if i != 0:
-            i = i - 1        
             print(tid,':Page:',i)
             getHtml(url, header, i)
             doChore()             
+            i = i - 1        
         else:
             print("Thread_id",tid," No more tasks")
             os._exit(0)           
@@ -58,7 +60,7 @@ header = {'Host': 'www.smzdm.com',
 
 
 if __name__ == "__main__":
-    i    = 6755500
+    i    = 6454962
     lock = threading.Lock()
 
     booth(0, url, header)
