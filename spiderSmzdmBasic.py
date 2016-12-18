@@ -156,19 +156,27 @@ if __name__ == "__main__":
         print "strCmd", strCmd
         os.system(strCmd)
         buf = open("curl.txt", "rU").read()
-        print "buf", buf
-        pattern = re.compile('<div class="article-right".*?<em itemprop="name">(.*?)</em>.*?<span class="red">(.*?)</span></em>', re.S)
+        pattern = re.compile('<div class="article-top-box clearfix">.*?<img itemprop="image" src="(.*?)" alt', re.S)
+        images = re.findall(pattern, buf)
+        print "images", images
+        imageUrl = ''.join(images)
+        print "imageUrl", imageUrl
+        for image in images:
+            print "image", image
+
+        pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">(.*?)</span></em>', re.S)
         items = re.findall(pattern, buf)
+        print "items", items
         for item in items:
             print "item ", item[0], item[1]
 
-        #构建请求的request
-        request = urllib2.Request(url,headers = header)
-        #利用urlopen获取页面代码
-        response = urllib2.urlopen(request)
-        #将页面转化为UTF-8编码
-        pageCode = response.read().decode('gb2312')
-        print "pageCode", pageCode
+#        #构建请求的request
+#        request = urllib2.Request(url,headers = header)
+#        #利用urlopen获取页面代码
+#        response = urllib2.urlopen(request)
+#        #将页面转化为UTF-8编码
+#        pageCode = response.read().decode('gb2312')
+#        print "pageCode", pageCode
     except urllib2.URLError, e:
         if hasattr(e,"reason"):
             print u"连接什么值得买失败,错误原因",e.reason
