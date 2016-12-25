@@ -20,8 +20,22 @@ import os
 import errno
 import re
 import sys
+import logging
+import logging.handlers
+
 reload(sys)
 sys.setdefaultencoding('utf8')
+
+logPath = "."
+logFileName = "error"
+logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
+logger = logging.getLogger()
+fileHandler = logging.FileHandler("{0}/{1}.log".format(logPath, logFileName))
+fileHandler.setFormatter(logFormatter)
+logger.addHandler(fileHandler)
+consoleHandler = logging.StreamHandler()
+consoleHandler.setFormatter(logFormatter)
+logger.addHandler(consoleHandler)
 
 def silentRemove(filename):
     try:
@@ -153,23 +167,24 @@ if __name__ == "__main__":
 #        print "r", r
         silentRemove("curl.txt")
         strCmd = "curl " + url + " >> curl.txt"
-        print "strCmd", strCmd
+        logger.error("strCmd " + strCmd)
         os.system(strCmd)
         buf = open("curl.txt", "rU").read()
         pattern = re.compile('<div class="article-top-box clearfix">.*?<img itemprop="image" src="(.*?)" alt', re.S)
         images = re.findall(pattern, buf)
-        print "images", images
         imageUrl = ''.join(images)
-        print "imageUrl", imageUrl
-        for image in images:
-            print "image", image
-
+        logger.error("imageUrl " + imageUrl)
+#        for image in images:
+#            print "image", image
+#
         pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">(.*?)</span></em>', re.S)
         items = re.findall(pattern, buf)
-        print "items", items
-        for item in items:
-            print "item ", item[0], item[1]
-
+#        print "items", items
+#        for item in items:
+#            logger.error("item " + item[0] + item[1])
+        logger.error("title " + items[0][0])
+        logger.error("price " + items[0][1])
+#
 #        #构建请求的request
 #        request = urllib2.Request(url,headers = header)
 #        #利用urlopen获取页面代码
