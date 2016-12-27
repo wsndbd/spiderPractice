@@ -184,6 +184,14 @@ if __name__ == "__main__":
 #            logger.error("item " + item[0] + item[1])
         logger.error("title " + items[0][0])
         logger.error("price " + items[0][1])
+
+        pattern = re.compile('id="rating_worthy_num">\n(.*?)<\/span>.*?"rating_unworthy_num">\n(.*?)<\/span>', re.S)
+        items = re.findall(pattern, buf)
+        logger.error("worth " + items[0][0])
+        logger.error("unworth " + items[0][1])
+        worthyCount = int(items[0][0])
+        unworthyCount = int(items[0][1])
+        totalCount = worthyCount + unworthyCount
 #
 #        #构建请求的request
 #        request = urllib2.Request(url,headers = header)
