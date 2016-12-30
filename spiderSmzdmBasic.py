@@ -22,6 +22,7 @@ import re
 import sys
 import logging
 import logging.handlers
+import MySQLdb
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -204,3 +205,9 @@ if __name__ == "__main__":
         if hasattr(e,"reason"):
             print u"连接什么值得买失败,错误原因",e.reason
 
+    db = MySQLdb.connect("127.0.0.1","root","d123g224","tt11" )
+    cursor = db.cursor()
+    sql = "select * from item"
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    logger.error(results)
