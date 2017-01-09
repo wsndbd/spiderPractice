@@ -2,7 +2,7 @@
 #--*coding: utf-8*--
 #
 ## file:   spiderSmzdmBasic.py
-## author: paldinzhang(paldinzhang@tencent.com)
+## author: paldinzhang()
 ## date:   2016-12-17 18:40:41
 
 '''
@@ -185,6 +185,8 @@ if __name__ == "__main__":
 #            logger.error("item " + item[0] + item[1])
         logger.error("title " + items[0][0])
         logger.error("price " + items[0][1])
+        title = items[0][0]
+        #price = float(items[0][1])
 
         pattern = re.compile('id="rating_worthy_num">\n(.*?)<\/span>.*?"rating_unworthy_num">\n(.*?)<\/span>', re.S)
         items = re.findall(pattern, buf)
@@ -193,6 +195,10 @@ if __name__ == "__main__":
         worthyCount = int(items[0][0])
         unworthyCount = int(items[0][1])
         totalCount = worthyCount + unworthyCount
+
+        pattern = re.compile('data-url=".*?" href="(.*?)"', re.S)
+        items = re.findall(pattern, buf)
+        logger.error("click_url " + items[0])
 #
 #        #构建请求的request
 #        request = urllib2.Request(url,headers = header)
@@ -205,9 +211,12 @@ if __name__ == "__main__":
         if hasattr(e,"reason"):
             print u"连接什么值得买失败,错误原因",e.reason
 
-    db = MySQLdb.connect("127.0.0.1","root","d123g224","tt11" )
+    db = MySQLdb.connect("64.137.186.10","tt11","d123g224","tt11" )
     cursor = db.cursor()
     sql = "select * from item"
     cursor.execute(sql)
+    addItemSql = ("insert into item(title, click_url, img_url, price) "
+            "VALUES (%s, %s, %s, %f)")
+    #itemData = (title, , imageUrl, price)
     results = cursor.fetchall()
     logger.error(results)
