@@ -113,22 +113,14 @@ if __name__ == "__main__":
         if hasattr(e,"reason"):
             print u"连接什么值得买失败,错误原因",e.reason
 
-    db = MySQLdb.connect("64.137.186.10","tt11","d123g224","tt11" )
+    db = MySQLdb.connect("64.137.186.10","tt11","d123g224","tt11", charset='utf8' )
     cursor = db.cursor()
-    sql = "select * from item"
-    #cursor.execute(sql)
+    cursor.execute("SET NAMES utf8")
+    cursor.execute("SET CHARACTER_SET_CLIENT=utf8")
+    cursor.execute("SET CHARACTER_SET_RESULTS=utf8")
+    db.commit()
 
-    addItemSql = ("insert into item(title, click_url, img_url, price) "
-            "VALUES (%s, %s, %s, %s)")
-    logger.error(addItemSql)
-    itemData = (title.decode('utf8'), clickUrl, imageUrl, price)
-    logger.error(title)
-    logger.error(itemData)
-
-    #results = cursor.fetchall()
-    #logger.error(results)
-    
-    cursor.execute(addItemSql, itemData)
+    cursor.execute("insert into item(title, click_url, img_url, price) VALUES (%s, %s, %s, %s)", (title, clickUrl, imageUrl, price))
 
     db.commit()
     cursor.close()
