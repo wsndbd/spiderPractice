@@ -20,6 +20,7 @@ import os
 import errno
 import re
 import sys
+import subprocess
 import logging
 import logging.handlers
 import MySQLdb
@@ -73,9 +74,22 @@ if __name__ == "__main__":
         images = re.findall(pattern, buf)
         imageUrl = ''.join(images)
         logger.error("imageUrl " + imageUrl)
-#        for image in images:
-#            print "image", image
-#
+        k = imageUrl.rfind("/")
+        pureImageName = imageUrl[k+1 : ]
+        logger.error("pureImageName " + pureImageName)
+        downloadDir = "~/Downloads"
+        downloadCmd = "wget %s -P %s" %(imageUrl, downloadDir)
+        logger.error("downloadCmd " + downloadCmd)
+        #download to local
+        os.system(downloadCmd)
+        
+        #push to server
+        scpCmd = "scp %s/%s root@64.137.186.10:/var/www/html/pic" %(downloadDir, pureImageName)
+        logger.error("scpCmd " +  scpCmd)
+        os.system(scpCmd)
+        #use the file url pushed to server befor 
+        imageUrl = "http://www.happystr.com/pic/" + pureImageName
+
         pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">&nbsp;&nbsp;&nbsp;(.*?)元.*?</span></em>', re.S)
         items = re.findall(pattern, buf)
 #        print "items", items
