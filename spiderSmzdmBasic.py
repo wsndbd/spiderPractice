@@ -15,7 +15,7 @@ import urllib2
 import re
 import thread
 import time
-import requests
+#import requests
 import os
 import errno
 import re
@@ -45,9 +45,13 @@ def silentRemove(filename):
     except OSError as e:
         if e.errno != errno.ENOENT:
             raise
-if __name__ == "__main__":
-    silentRemove("tmp.txt")
 
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print "Usage: python spiderSmzdmBasic.py local|remote"
+        quit()
+    downloadLocal = sys.argv[1] == "local"
+    silentRemove("tmp.txt")
     try:
         url = 'http://www.smzdm.com/p/6754962/'
         header = \
@@ -77,16 +81,21 @@ if __name__ == "__main__":
         k = imageUrl.rfind("/")
         pureImageName = imageUrl[k+1 : ]
         logger.error("pureImageName " + pureImageName)
-        downloadDir = "~/Downloads"
+        if downloadLocal:
+            downloadDir = "/var/www/html/pic"
+        else:
+            downloadDir = "~/Downloads"
         downloadCmd = "wget %s -P %s" %(imageUrl, downloadDir)
         logger.error("downloadCmd " + downloadCmd)
         #download to local
         os.system(downloadCmd)
         
         #push to server
-        scpCmd = "scp %s/%s root@64.137.186.10:/var/www/html/pic" %(downloadDir, pureImageName)
-        logger.error("scpCmd " +  scpCmd)
-        os.system(scpCmd)
+        if not downloadLocal:
+            scpCmd = "scp %s/%s root@64.137.186.10:/var/www/html/pic" %(downloadDir, pureImageName)
+            logger.error("scpCmd " +  scpCmd)
+            os.system(scpCmd)
+
         #use the file url pushed to server befor 
         imageUrl = "http://www.happystr.com/pic/" + pureImageName
 
