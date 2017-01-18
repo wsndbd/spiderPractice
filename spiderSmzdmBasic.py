@@ -15,7 +15,7 @@ import urllib2
 import re
 import thread
 import time
-#import requests
+import requests
 import os
 import errno
 import re
@@ -24,6 +24,8 @@ import subprocess
 import logging
 import logging.handlers
 import MySQLdb
+import pytz
+import datetime
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -47,28 +49,17 @@ def silentRemove(filename):
             raise
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print "Usage: python spiderSmzdmBasic.py local|remote"
+    if len(sys.argv) < 3:
+        print "Usage: python spiderSmzdmBasic.py local|remote lastPageFileName"
         quit()
     downloadLocal = sys.argv[1] == "local"
+    pageFile = open(sys.argv[2], "r")
+    page = pageFile.readline().strip()
     silentRemove("tmp.txt")
     try:
-        url = 'http://www.smzdm.com/p/6754962/'
-        header = \
-        {
-            'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Encoding':'gzip, deflate, sdch',
-            'Accept-Language':'zh-CN,zh;q=0.8,en;q=0.6',
-            'Cache-Control':'max-age=0',
-            'Connection':'keep-alive',
-            'Cookie':'smzdm_user_source=7990A03AD65DB60A2F455FBB515BF170; __gads=ID=b0c06b1ba0f1c4fe:T=1454079839:S=ALNI_MYEy-ry7FAu4Vg_5x_jyWv8_Ytl4w; bdshare_firstime=1454079843620; AJSTAT_ok_times=4; userId=8166376030; __jsluid=8bd3efcd9180066749abfe076c483f28; smzdm_user_view=D268849003A4B08B81AC611B6306A65C; wt3_eid=%3B999768690672041%7C2146194024900415599%232148181478000775469; s_his=%E6%B7%98%E5%AE%9D; PHPSESSID=72dl6hl5h0j3t4f0i317fg7q87; isFirstUser=yes; Hm_lvt_9b7ac3d38f30fe89ff0b8a0546904e58=1479739640,1480253948,1481814133,1481896561; Hm_lpvt_9b7ac3d38f30fe89ff0b8a0546904e58=1481969874; _ga=GA1.2.1882084856.1454079834; amvid=5c2daa8c6279bf120d0b5c86b8f1a274',
-            'Host':'www.smzdm.com',
-            'Upgrade-Insecure-Requests':'1',
-            'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'
-        }
+        url = 'http://www.smzdm.com/p/' + page + '/'
+        logger.error("url " + url)
 
-#        r = requests.get(url)
-#        print "r", r
         silentRemove("curl.txt")
         strCmd = "curl " + url + " >> curl.txt"
         logger.error("strCmd " + strCmd)
