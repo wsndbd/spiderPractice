@@ -21,11 +21,11 @@ import errno
 import re
 import sys
 import subprocess
+import datetime
 import logging
 import logging.handlers
 import MySQLdb
 import pytz
-import datetime
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -50,16 +50,18 @@ def silentRemove(filename):
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print "Usage: python spiderSmzdmBasic.py local|remote lastPageFileName"
+        print "Usage: python spiderSmzdmBasic.py local|remote lastPFileName"
         quit()
     downloadLocal = sys.argv[1] == "local"
-    pageFile = open(sys.argv[2], "r")
-    page = pageFile.readline().strip()
+    pFile = open(sys.argv[2], "r")
+    page = pFile.readline().strip()
+    logger.error("page " + page)
+    pFile.close()
     silentRemove("tmp.txt")
     try:
         url = 'http://www.smzdm.com/p/' + page + '/'
-        logger.error("url " + url)
-
+#        r = requests.get(url)
+#        print "r", r
         silentRemove("curl.txt")
         strCmd = "curl " + url + " >> curl.txt"
         logger.error("strCmd " + strCmd)
@@ -79,13 +81,13 @@ if __name__ == "__main__":
         downloadCmd = "wget %s -P %s" %(imageUrl, downloadDir)
         logger.error("downloadCmd " + downloadCmd)
         #download to local
-        os.system(downloadCmd)
+        #os.system(downloadCmd)
         
         #push to server
         if not downloadLocal:
             scpCmd = "scp %s/%s root@64.137.186.10:/var/www/html/pic" %(downloadDir, pureImageName)
             logger.error("scpCmd " +  scpCmd)
-            os.system(scpCmd)
+            #os.system(scpCmd)
 
         #use the file url pushed to server befor 
         imageUrl = "http://www.happystr.com/pic/" + pureImageName
@@ -108,6 +110,23 @@ if __name__ == "__main__":
         worthyCount = int(items[0][0])
         unworthyCount = int(items[0][1])
         totalCount = worthyCount + unworthyCount
+
+        pattern = re.compile('<span>更新时间：(.*?)</span>', re.S)
+        items = re.findall(pattern, buf)
+        #smzdm时间是北京时间gmt+8
+        urlDate = datetime.datetime.strptime(items[0], "%Y-%m-%d %H:%M")
+        #服务器时间，将来要修改TODO
+        localTz = pytz.timezone('Asia/Shanghai')
+        localTs = int(time.time())
+        localDt = datetime.datetime.fromtimestamp(user_ts)
+        #使用localize保险
+        localDt = localTz.localize(localDT)
+        smzdmTz = pytz.timezone('Asia/Shanghai')
+        ddt2.astimezone(smzdmTz)
+        #logger.error(urlDate)
+        #logger.error(urlUtcDate)
+        #所有时间都转换成UTC进行比较
+        quit()
 
         trackID = "&ali_trackid=2:mm_67738872_18500907_65518477"
 
