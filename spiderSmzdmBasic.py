@@ -48,49 +48,71 @@ def silentRemove(filename):
         if e.errno != errno.ENOENT:
             raise
 
+def PageExist(buf):
+    #can't find sig <title>404</title>
+    pattern = re.compile('<title>404</title>', re.S)
+    pageExist = re.findall(pattern, buf) 
+    logger.error(pageExist)
+    if len(pageExist) <= 0:
+        logger.error("page exist")
+        return True
+    else:
+        logger.error("page not exist")
+        return False 
+
+def downloadImageAndPushToSever(buf, downloadLocal):
+    pattern = re.compile('<div class="article-top-box clearfix">.*?<img itemprop="image" src="(.*?)" alt', re.S)
+    images = re.findall(pattern, buf)
+    imageUrl = ''.join(images)
+    logger.error("imageUrl " + imageUrl)
+    k = imageUrl.rfind("/")
+    pureImageName = imageUrl[k+1 : ]
+    logger.error("pureImageName " + pureImageName)
+    if downloadLocal:
+        downloadDir = "/var/www/html/pic"
+    else:
+        downloadDir = "~/Downloads"
+    downloadCmd = "wget %s -P %s" %(imageUrl, downloadDir)
+    logger.error("downloadCmd " + downloadCmd)
+    os.system(downloadCmd)
+
+    #push to server
+    if not downloadLocal:
+        scpCmd = "scp %s/%s root@64.137.186.10:/var/www/html/pic" %(downloadDir, pureImageName)
+        logger.error("scpCmd " +  scpCmd)
+        os.system(scpCmd)
+    #use the file url pushed to server befor 
+    imageUrl = "http://www.happystr.com/pic/" + pureImageName
+    
+    return imagUrl
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print "Usage: python spiderSmzdmBasic.py local|remote lastPFileName"
         quit()
+
+    #是否将图片直接下载到服务器目录，在服务器上运行时为true，否则需要再scp push到服务器指定目录
     downloadLocal = sys.argv[1] == "local"
     pFile = open(sys.argv[2], "r")
     page = pFile.readline().strip()
     logger.error("page " + page)
     pFile.close()
-    silentRemove("tmp.txt")
+    
     try:
         url = 'http://www.smzdm.com/p/' + page + '/'
-#        r = requests.get(url)
-#        print "r", r
         silentRemove("curl.txt")
         strCmd = "curl " + url + " >> curl.txt"
         logger.error("strCmd " + strCmd)
         os.system(strCmd)
-        buf = open("curl.txt", "rU").read()
-        pattern = re.compile('<div class="article-top-box clearfix">.*?<img itemprop="image" src="(.*?)" alt', re.S)
-        images = re.findall(pattern, buf)
-        imageUrl = ''.join(images)
-        logger.error("imageUrl " + imageUrl)
-        k = imageUrl.rfind("/")
-        pureImageName = imageUrl[k+1 : ]
-        logger.error("pureImageName " + pureImageName)
-        if downloadLocal:
-            downloadDir = "/var/www/html/pic"
-        else:
-            downloadDir = "~/Downloads"
-        downloadCmd = "wget %s -P %s" %(imageUrl, downloadDir)
-        logger.error("downloadCmd " + downloadCmd)
-        #download to local
-        #os.system(downloadCmd)
-        
-        #push to server
-        if not downloadLocal:
-            scpCmd = "scp %s/%s root@64.137.186.10:/var/www/html/pic" %(downloadDir, pureImageName)
-            logger.error("scpCmd " +  scpCmd)
-            #os.system(scpCmd)
+        fCurl = open("curl.txt", "rU")
+        buf = fCurl.read()
+        fCurl.close()
 
-        #use the file url pushed to server befor 
-        imageUrl = "http://www.happystr.com/pic/" + pureImageName
+        #judge page exist
+        if not PageExist(buf):
+            quit() 
+
+        serverImageUrl = downloadImageAndPushToSever(buf, downloadLocal)
 
         pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">&nbsp;&nbsp;&nbsp;(.*?)元.*?</span></em>', re.S)
         items = re.findall(pattern, buf)
@@ -138,14 +160,6 @@ if __name__ == "__main__":
         items = re.findall(pattern, buf)
         logger.error("click_url " + items[0] + trackID)
         clickUrl = items[0] + trackID 
-#
-#        #构建请求的request
-#        request = urllib2.Request(url,headers = header)
-#        #利用urlopen获取页面代码
-#        response = urllib2.urlopen(request)
-#        #将页面转化为UTF-8编码
-#        pageCode = response.read().decode('gb2312')
-#        print "pageCode", pageCode
     except urllib2.URLError, e:
         if hasattr(e,"reason"):
             print u"连接什么值得买失败,错误原因",e.reason
@@ -157,7 +171,7 @@ if __name__ == "__main__":
     cursor.execute("SET CHARACTER_SET_RESULTS=utf8")
     db.commit()
 
-    cursor.execute("insert into item(title, click_url, img_url, price) VALUES (%s, %s, %s, %s)", (title, clickUrl, imageUrl, price))
+    cursor.execute("insert into item(title, click_url, img_url, price) VALUES (%s, %s, %s, %s)", (title, clickUrl, serverImageUrl, price))
 
     db.commit()
     cursor.close()
