@@ -121,15 +121,17 @@ if __name__ == "__main__":
         localDt = datetime.datetime.fromtimestamp(localTs)
         #使用localize保险
         localDt = localTz.localize(localDt)
-        logger.error(localDt)
+        logger.error("localDt " + localDt.__str__())
 
         smzdmTz = pytz.timezone('Asia/Shanghai')
         smzdmDt = smzdmTz.localize(urlDate)
         smzdmDt.astimezone(smzdmTz)
-        logger.error(smzdmDt)
-        #所有时间都转换成UTC进行比较
-        quit()
+        logger.error("smzdmDt " + smzdmDt.__str__())
 
+        #数据必须在1小时内
+        totalSeconds = (localDt - smzdmDt).total_seconds()
+
+        logger.error("totalSeconds " + str(totalSeconds))
         trackID = "&ali_trackid=2:mm_67738872_18500907_65518477"
 
         pattern = re.compile('data-url=".*?" href="(.*?)"', re.S)
