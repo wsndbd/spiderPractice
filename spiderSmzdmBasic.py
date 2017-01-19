@@ -118,13 +118,15 @@ if __name__ == "__main__":
         #服务器时间，将来要修改TODO
         localTz = pytz.timezone('Asia/Shanghai')
         localTs = int(time.time())
-        localDt = datetime.datetime.fromtimestamp(user_ts)
+        localDt = datetime.datetime.fromtimestamp(localTs)
         #使用localize保险
-        localDt = localTz.localize(localDT)
+        localDt = localTz.localize(localDt)
+        logger.error(localDt)
+
         smzdmTz = pytz.timezone('Asia/Shanghai')
-        ddt2.astimezone(smzdmTz)
-        #logger.error(urlDate)
-        #logger.error(urlUtcDate)
+        smzdmDt = smzdmTz.localize(urlDate)
+        smzdmDt.astimezone(smzdmTz)
+        logger.error(smzdmDt)
         #所有时间都转换成UTC进行比较
         quit()
 
