@@ -76,10 +76,10 @@ def downloadImageAndPushToSever(buf, downloadLocal):
     os.system(downloadCmd)
 
     #push to server
-    #if not downloadLocal:
-    #    scpCmd = "scp %s/%s root@64.137.186.10:/var/www/html/pic" %(downloadDir, pureImageName)
-    #    logger.error("scpCmd " +  scpCmd)
-    #    os.system(scpCmd)
+    if not downloadLocal:
+        scpCmd = "scp %s/%s root@64.137.186.10:/var/www/html/pic" %(downloadDir, pureImageName)
+        logger.error("scpCmd " +  scpCmd)
+        os.system(scpCmd)
     #use the file url pushed to server befor 
     imageUrl = "http://www.happystr.com/pic/" + pureImageName
     return imageUrl
@@ -87,9 +87,15 @@ def downloadImageAndPushToSever(buf, downloadLocal):
 def getPrice(buf):
     pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">&nbsp;&nbsp;&nbsp;(.*?)元.*?</span></em>', re.S)
     items = re.findall(pattern, buf)
-#        print "items", items
-#        for item in items:
-#            logger.error("item " + item[0] + item[1])
+    if len(items) == 0:
+        pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">&nbsp;&nbsp;&nbsp;(.*?)块.*?</span></em>', re.S)
+        items = re.findall(pattern, buf)
+    if len(items) == 0:
+        pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">&nbsp;&nbsp;&nbsp;(.*?)</span></em>', re.S)
+        items = re.findall(pattern, buf)
+    print "items", items
+    for item in items:
+        logger.error("item " + item[0] + item[1])
     logger.error("title " + items[0][0])
     logger.error("price " + items[0][1])
     title = items[0][0]
@@ -191,12 +197,12 @@ if __name__ == "__main__":
     logger.error("page " + str(page))
     pFile.close()
     
-#    db = MySQLdb.connect("64.137.186.10","tt11","d123g224","tt11", charset='utf8' )
-#    cursor = db.cursor()
-#    cursor.execute("SET NAMES utf8")
-#    cursor.execute("SET CHARACTER_SET_CLIENT=utf8")
-#    cursor.execute("SET CHARACTER_SET_RESULTS=utf8")
-#    db.commit()
+    db = MySQLdb.connect("64.137.186.10","tt11","d123g224","tt11", charset='utf8' )
+    cursor = db.cursor()
+    cursor.execute("SET NAMES utf8")
+    cursor.execute("SET CHARACTER_SET_CLIENT=utf8")
+    cursor.execute("SET CHARACTER_SET_RESULTS=utf8")
+    db.commit()
 
     notFoundCount = 0
     while notFoundCount < 10:
@@ -219,16 +225,16 @@ if __name__ == "__main__":
             if not isTaobaoLink(buf):
                continue
 
+            if not latestArticle(buf):
+                continue
+
             serverImageUrl = downloadImageAndPushToSever(buf, downloadLocal)
             if None == serverImageUrl:
                 continue
 
             price = getPrice(buf)
 
-            #if not worthy(buf):
-            #    continue
-
-            if not latestArticle(buf):
+            if not worthy(buf):
                 continue
 
             clickUrl = getClickUrl(buf) 
@@ -239,12 +245,12 @@ if __name__ == "__main__":
             if hasattr(e,"reason"):
                 logger.error(u"连接什么值得买失败,错误原因" + e.reason)
 
-        #cursor.execute("insert into item(title, click_url, img_url, price) VALUES (%s, %s, %s, %s)", (title, clickUrl, serverImageUrl, price))
+        cursor.execute("insert into item(title, click_url, img_url, price) VALUES (%s, %s, %s, %s)", (title, clickUrl, serverImageUrl, price))
 
-#    db.commit()
-#    cursor.close()
-#    db.close()
-#
+    db.commit()
+    cursor.close()
+    db.close()
+
     pFile = open(sys.argv[2], "w")
     logger.error("write page " + page)
     pFile.write(page)
