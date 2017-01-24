@@ -43,7 +43,9 @@ if __name__ == "__main__":
     logger.error("price " + items[0][1])
     string = items[0][1] 
     string = string.decode("utf-8")
-    filtrate = re.compile(u'[\u4E00-\u9FA5]')#非中文
+    filtrate = re.compile(u"\\b\\d*")#非中文
+    items1 =  re.findall(filtrate, items[0][1])
+    print "len(items1)", items1, items1[0]
     filtered_str = filtrate.sub(r' ', string)#replace
     print filtered_str
     title = items[0][0]

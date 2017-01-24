@@ -84,6 +84,7 @@ def downloadImageAndPushToSever(buf, downloadLocal):
     imageUrl = "http://www.happystr.com/pic/" + pureImageName
     return imageUrl
 
+#TODO:这里面也可以取<meta property="og:product:price" content="4999"/>
 def getPrice(buf):
     pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">&nbsp;&nbsp;&nbsp;(.*?)</span></em>', re.S)
     items = re.findall(pattern, buf)
@@ -94,12 +95,13 @@ def getPrice(buf):
     logger.error("price " + items[0][1])
     string = items[0][1] 
     string = string.decode("utf-8")
-    filtrate = re.compile(u'[\u4E00-\u9FA5]')#非中文
-    filtered_str = filtrate.sub(r' ', string)#replace
+    filtrate = re.compile(u"\\b\\d*")#非中文
+    items1 =  re.findall(filtrate, items[0][1])
+    print "len(items1)", items1, items1[0]
     title = items[0][0]
     logger.error("title " + title)
-    logger.error("price " + filtered_str)
-    price = float(filtered_str)
+    logger.error("price " + items1[0])
+    price = float(items1[0])
     return price
 
 def worthy(buf):
@@ -227,18 +229,18 @@ if __name__ == "__main__":
             if not latestArticle(buf):
                 continue
 
-            serverImageUrl = downloadImageAndPushToSever(buf, downloadLocal)
-            if None == serverImageUrl:
-                continue
-
-            price = getPrice(buf)
-
             if not worthy(buf):
                 continue
 
             clickUrl = getClickUrl(buf) 
             if None == clickUrl:
                 continue
+
+            serverImageUrl = downloadImageAndPushToSever(buf, downloadLocal)
+            if None == serverImageUrl:
+                continue
+
+            price = getPrice(buf)
             break
         except urllib2.URLError, e:
             if hasattr(e,"reason"):
