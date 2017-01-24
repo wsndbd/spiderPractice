@@ -85,22 +85,21 @@ def downloadImageAndPushToSever(buf, downloadLocal):
     return imageUrl
 
 def getPrice(buf):
-    pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">&nbsp;&nbsp;&nbsp;(.*?)元.*?</span></em>', re.S)
+    pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">&nbsp;&nbsp;&nbsp;(.*?)</span></em>', re.S)
     items = re.findall(pattern, buf)
-    if len(items) == 0:
-        pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">&nbsp;&nbsp;&nbsp;(.*?)块.*?</span></em>', re.S)
-        items = re.findall(pattern, buf)
-    if len(items) == 0:
-        pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">&nbsp;&nbsp;&nbsp;(.*?)</span></em>', re.S)
-        items = re.findall(pattern, buf)
-    print "items", items
-    for item in items:
-        logger.error("item " + item[0] + item[1])
+    #print "items", items
+    #for item in items:
+    #    logger.error("item " + item[0] + item[1])
     logger.error("title " + items[0][0])
     logger.error("price " + items[0][1])
+    string = items[0][1] 
+    string = string.decode("utf-8")
+    filtrate = re.compile(u'[\u4E00-\u9FA5]')#非中文
+    filtered_str = filtrate.sub(r' ', string)#replace
     title = items[0][0]
-    logger.error(title)
-    price = float(items[0][1])
+    logger.error("title " + title)
+    logger.error("price " + filtered_str)
+    price = float(filtered_str)
     return price
 
 def worthy(buf):
