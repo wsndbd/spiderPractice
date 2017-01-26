@@ -84,7 +84,7 @@ def downloadImageAndPushToSever(buf, downloadLocal):
     imageUrl = "http://www.happystr.com/pic/" + pureImageName
     return imageUrl
 
-def getPrice(buf):
+def getTitleAndPrice(buf):
     pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">&nbsp;&nbsp;&nbsp;(.*?)元.*?</span></em>', re.S)
     items = re.findall(pattern, buf)
     if len(items) == 0:
@@ -101,7 +101,7 @@ def getPrice(buf):
     title = items[0][0]
     logger.error(title)
     price = float(items[0][1])
-    return price
+    return (title, price)
 
 def worthy(buf):
     pattern = re.compile('id="rating_worthy_num">\n(.*?)<\/span>.*?"rating_unworthy_num">\n(.*?)<\/span>', re.S)
@@ -169,12 +169,12 @@ def latestArticle(buf):
 def isTaobaoLink(buf):
     pattern = re.compile('data-url=".*?"  href="(.*?)"', re.S)
     items = re.findall(pattern, buf)
-    logger.error("isTaobaoLink")
     logger.error(items)
     if len(items) <= 0:
         return False
     if -1 == items[0].find("taobao") and -1 == items[0].find("tmall"):
         return False 
+    logger.error("isTaobaoLink")
     return True
 
 def getClickUrl(buf):
@@ -232,7 +232,7 @@ if __name__ == "__main__":
             if None == serverImageUrl:
                 continue
 
-            price = getPrice(buf)
+            (title, price) = getTitleAndPrice(buf)
 
             if not worthy(buf):
                 continue
@@ -240,11 +240,9 @@ if __name__ == "__main__":
             clickUrl = getClickUrl(buf) 
             if None == clickUrl:
                 continue
-            break
         except urllib2.URLError, e:
             if hasattr(e,"reason"):
                 logger.error(u"连接什么值得买失败,错误原因" + e.reason)
-
         cursor.execute("insert into item(title, click_url, img_url, price) VALUES (%s, %s, %s, %s)", (title, clickUrl, serverImageUrl, price))
 
     db.commit()
