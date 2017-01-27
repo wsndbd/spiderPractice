@@ -205,7 +205,7 @@ if __name__ == "__main__":
     db.commit()
 
     notFoundCount = 0
-    while notFoundCount < 10:
+    while notFoundCount < 5:
         try:
             page = str(int(page) + 1)
             url = 'http://www.smzdm.com/p/' + page + '/'
@@ -221,15 +221,12 @@ if __name__ == "__main__":
             if not pageExist(buf):
                notFoundCount += 1
                continue
+            notFoundCount = 0
 
             if not isTaobaoLink(buf):
                continue
 
             if not latestArticle(buf):
-                continue
-
-            serverImageUrl = downloadImageAndPushToSever(buf, downloadLocal)
-            if None == serverImageUrl:
                 continue
 
             (title, price) = getTitleAndPrice(buf)
@@ -239,6 +236,10 @@ if __name__ == "__main__":
 
             clickUrl = getClickUrl(buf) 
             if None == clickUrl:
+                continue
+
+            serverImageUrl = downloadImageAndPushToSever(buf, downloadLocal)
+            if None == serverImageUrl:
                 continue
         except urllib2.URLError, e:
             if hasattr(e,"reason"):
