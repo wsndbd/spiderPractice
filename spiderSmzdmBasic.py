@@ -144,19 +144,24 @@ def latestArticle(buf):
     if urlDate.date() != date1900:
         return False 
     #服务器时间，将来要修改TODO
-    localTz = pytz.timezone('Asia/Shanghai')
+    #localTz = pytz.timezone('Asia/Shanghai')
+    localTz = pytz.timezone('US/Eastern')
     localTs = int(time.time())
     localDt = datetime.datetime.fromtimestamp(localTs)
     #使用localize保险
     localDt = localTz.localize(localDt)
+    logger.error(localDt)
     logger.error("localDt " + localDt.__str__())
+    #有时区信息后进行转换为smzdm时间
+    smzdmTz = pytz.timezone('Asia/Shanghai')
+    localDt = localDt.astimezone(smzdmTz)
+    logger.error("localDt => smzdmDt " + localDt.__str__())
 
     #smzdm时间是北京时间gmt+8,因为网站上抓下来的只有时间，要把date加上
     urlDate = datetime.datetime.combine(localDt.date(), urlDate.time())
     logger.error(urlDate)
-    smzdmTz = pytz.timezone('Asia/Shanghai')
     smzdmDt = smzdmTz.localize(urlDate)
-    smzdmDt.astimezone(smzdmTz)
+    #smzdmDt.astimezone(smzdmTz)
     logger.error("smzdmDt " + smzdmDt.__str__())
 
     #数据必须在1小时内
@@ -247,6 +252,7 @@ if __name__ == "__main__":
                 logger.error(u"连接什么值得买失败,错误原因" + e.reason)
 
         cursor.execute("insert into item(title, click_url, img_url, price) VALUES (%s, %s, %s, %s)", (title, clickUrl, serverImageUrl, price))
+        logger.error('!!!!!!!!!!!!!!!!!!!!!!!!!!find one')
 
     db.commit()
     cursor.close()
