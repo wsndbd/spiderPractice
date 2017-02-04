@@ -102,7 +102,7 @@ def getPrice(buf):
     logger.error("title " + title)
     logger.error("price " + items1[0])
     price = float(items1[0])
-    return price
+    return (title, price)
 
 def worthy(buf):
     pattern = re.compile('id="rating_worthy_num">\n(.*?)<\/span>.*?"rating_unworthy_num">\n(.*?)<\/span>', re.S)
@@ -231,11 +231,11 @@ if __name__ == "__main__":
             if not isTaobaoLink(buf):
                continue
 
-            if not latestArticle(buf):
-                continue
-
-            if not worthy(buf):
-                continue
+            #if not latestArticle(buf):
+            #    continue
+            #
+            #if not worthy(buf):
+            #    continue
 
             clickUrl = getClickUrl(buf) 
             if None == clickUrl:
@@ -245,7 +245,7 @@ if __name__ == "__main__":
             if None == serverImageUrl:
                 continue
 
-            price = getPrice(buf)
+            (title, price) = getPrice(buf)
             break
         except urllib2.URLError, e:
             if hasattr(e,"reason"):
