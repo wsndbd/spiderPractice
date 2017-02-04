@@ -8,6 +8,7 @@
 '''
   Description:
 '''
+
 __author__ = 'CQC'
 # -*- coding:utf-8 -*-
 import urllib
@@ -143,17 +144,17 @@ def latestArticle(buf):
     if urlDate.date() != date1900:
         return False 
     #服务器时间，将来要修改TODO
-    localTz = pytz.timezone('Asia/Shanghai')
+    localTz = pytz.timezone('US/Eastern')
     localTs = int(time.time())
-    localDt = datetime.datetime.fromtimestamp(localTs)
-    #使用localize保险
-    localDt = localTz.localize(localDt)
+    localDt = datetime.datetime.fromtimestamp(localTs, localTz)
     logger.error("localDt " + localDt.__str__())
+    #使用localize保险
+    smzdmTz = pytz.timezone('Asia/Shanghai')
+    print localDt.astimezone(smzdmTz)
 
     #smzdm时间是北京时间gmt+8,因为网站上抓下来的只有时间，要把date加上
     urlDate = datetime.datetime.combine(localDt.date(), urlDate.time())
     logger.error(urlDate)
-    smzdmTz = pytz.timezone('Asia/Shanghai')
     smzdmDt = smzdmTz.localize(urlDate)
     smzdmDt.astimezone(smzdmTz)
     logger.error("smzdmDt " + smzdmDt.__str__())
