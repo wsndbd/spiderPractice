@@ -150,7 +150,8 @@ def latestArticle(buf):
     logger.error("localDt " + localDt.__str__())
     #使用localize保险
     smzdmTz = pytz.timezone('Asia/Shanghai')
-    print localDt.astimezone(smzdmTz)
+    localDt = localDt.astimezone(smzdmTz)
+    logger.error("localDt=>smzdmDt " + localDt.__str__())
 
     #smzdm时间是北京时间gmt+8,因为网站上抓下来的只有时间，要把date加上
     urlDate = datetime.datetime.combine(localDt.date(), urlDate.time())
