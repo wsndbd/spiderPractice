@@ -112,7 +112,7 @@ def worthy(buf):
     worthyCount = int(items[0][0])
     unworthyCount = int(items[0][1])
     totalCount = worthyCount + unworthyCount
-    if 0 == unworthyCount and worthyCount > 20:
+    if 0 == unworthyCount and worthyCount > 10:
         return True
     if totalCount > 100 or (unworthyCount != 0 and float(worthyCount) / unworthyCount > 5):
         return True
@@ -212,7 +212,7 @@ if __name__ == "__main__":
             page = str(int(page) + 1)
             url = 'http://www.smzdm.com/p/' + page + '/'
             silentRemove("curl.txt")
-            strCmd = "curl " + url + " >> curl.txt"
+            strCmd = "curl " + url + " >> curl.txt" + " --connect-timeout 30 -m 60"
             logger.error("strCmd " + strCmd)
             os.system(strCmd)
             fCurl = open("curl.txt", "rU")
