@@ -31,7 +31,7 @@ consoleHandler.setFormatter(logFormatter)
 logger.addHandler(consoleHandler)
 
 if __name__ == "__main__":
-    fCurl = open("curl.txt", "rU")
+    fCurl = open("curl.txt.test", "rU")
     buf = fCurl.read()
     fCurl.close()
     pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">&nbsp;&nbsp;&nbsp;(.*?)</span></em>', re.S)
@@ -43,8 +43,11 @@ if __name__ == "__main__":
     logger.error("price " + items[0][1])
     string = items[0][1] 
     string = string.decode("utf-8")
-    filtrate = re.compile(u"\\b\\d*")#非中文
+    filtrate = re.compile(u'[0-9.]')#非中文
+    print ''.join(re.findall(filtrate, items[0][1]))
+    filtrate = re.compile(u'[\u4E00-\u9FA5]')#非中文
     items1 =  re.findall(filtrate, items[0][1])
+    print "items1", items1
     print "len(items1)", items1, items1[0]
     filtered_str = filtrate.sub(r' ', string)#replace
     print filtered_str

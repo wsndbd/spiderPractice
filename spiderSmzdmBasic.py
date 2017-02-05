@@ -88,19 +88,19 @@ def downloadImageAndPushToSever(buf, downloadLocal):
 def getTitleAndPrice(buf):
     pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">&nbsp;&nbsp;&nbsp;(.*?)</span></em>', re.S)
     items = re.findall(pattern, buf)
-    #print "items", items
-    #for item in items:
-    #    logger.error("item " + item[0] + item[1])
+    print "items", items
+    for item in items:
+        logger.error("item " + item[0] + item[1])
     logger.error("title " + items[0][0])
     logger.error("price " + items[0][1])
     string = items[0][1] 
     string = string.decode("utf-8")
-    filtrate = re.compile(u'[\u4E00-\u9FA5]')#非中文
-    filtered_str = filtrate.sub(r' ', string)#replace
+    filtrate = re.compile(u'[0-9.]')#数字及.
+    strPrice = (''.join(re.findall(filtrate, items[0][1])))
     title = items[0][0]
     logger.error("title " + title)
-    logger.error("price " + filtered_str)
-    price = float(filtered_str)
+    logger.error("price " + strPrice)
+    price = float(strPrice)
     return (title, price)
 
 def worthy(buf):
@@ -120,6 +120,7 @@ def worthy(buf):
 def latestArticle(buf):
     pattern = re.compile('<span>更新时间：(.*?)</span>', re.S)
     items = re.findall(pattern, buf)
+    print items
     logger.error('更新时间' + items[0])
 
     #需要找到的时间格式为时：分，如果是年：月：日 时：分说明不是今天的
@@ -226,8 +227,8 @@ if __name__ == "__main__":
             if not isTaobaoLink(buf):
                continue
 
-            if not latestArticle(buf):
-                continue
+            #if not latestArticle(buf):
+            #    continue
 
             (title, price) = getTitleAndPrice(buf)
 
