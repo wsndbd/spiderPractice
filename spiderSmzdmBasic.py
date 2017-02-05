@@ -207,7 +207,7 @@ if __name__ == "__main__":
     db.commit()
 
     notFoundCount = 0
-    while notFoundCount < 10:
+    while notFoundCount < 20:
         try:
             page = str(int(page) + 1)
             url = 'http://www.smzdm.com/p/' + page + '/'
