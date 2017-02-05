@@ -207,12 +207,12 @@ if __name__ == "__main__":
     db.commit()
 
     notFoundCount = 0
-    while notFoundCount < 5:
+    while notFoundCount < 10:
         try:
             page = str(int(page) + 1)
             url = 'http://www.smzdm.com/p/' + page + '/'
             silentRemove("curl.txt")
-            strCmd = "curl " + url + " >> curl.txt" + " --connect-timeout 30 -m 60"
+            strCmd = "curl " + url + " >> curl.txt" + " --connect-timeout 10 -m 20"
             logger.error("strCmd " + strCmd)
             os.system(strCmd)
             fCurl = open("curl.txt", "rU")
@@ -223,7 +223,6 @@ if __name__ == "__main__":
             if not pageExist(buf):
                notFoundCount += 1
                continue
-            notFoundCount = 0
 
             if not isTaobaoLink(buf):
                continue
