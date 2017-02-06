@@ -30,28 +30,34 @@ consoleHandler = logging.StreamHandler()
 consoleHandler.setFormatter(logFormatter)
 logger.addHandler(consoleHandler)
 
+def getPrice(buf):
+    pattern = re.compile('<meta property="og:product:price" content="(.*?)"')
+    items = re.findall(pattern, buf)
+    logger.error(items)
+
 if __name__ == "__main__":
     fCurl = open("curl.txt.test", "rU")
     buf = fCurl.read()
     fCurl.close()
-    pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">&nbsp;&nbsp;&nbsp;(.*?)</span></em>', re.S)
-    items = re.findall(pattern, buf)
-    print "items", items
-    for item in items:
-        logger.error("item " + item[0] + item[1])
-    logger.error("title " + items[0][0])
-    logger.error("price " + items[0][1])
-    string = items[0][1] 
-    string = string.decode("utf-8")
-    filtrate = re.compile(u'[0-9.]')#非中文
-    print ''.join(re.findall(filtrate, items[0][1]))
-    filtrate = re.compile(u'[\u4E00-\u9FA5]')#非中文
-    items1 =  re.findall(filtrate, items[0][1])
-    print "items1", items1
-    print "len(items1)", items1, items1[0]
-    filtered_str = filtrate.sub(r' ', string)#replace
-    print filtered_str
-    title = items[0][0]
-    logger.error(title)
-    price = float(filtered_str)
+    #pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">&nbsp;&nbsp;&nbsp;(.*?)</span></em>', re.S)
+    #items = re.findall(pattern, buf)
+    #print "items", items
+    #for item in items:
+    #    logger.error("item " + item[0] + item[1])
+    #logger.error("title " + items[0][0])
+    #logger.error("price " + items[0][1])
+    #string = items[0][1] 
+    #string = string.decode("utf-8")
+    #filtrate = re.compile(u'[0-9.]')#非中文
+    #print (re.findall(filtrate, items[0][1]))
+    #filtrate = re.compile(u'[\u4E00-\u9FA5]')#非中文
+    #items1 =  re.findall(filtrate, items[0][1])
+    #print "items1", items1
+    #print "len(items1)", items1, items1[0]
+    #filtered_str = filtrate.sub(r' ', string)#replace
+    #print filtered_str
+    #title = items[0][0]
+    #logger.error(title)
+    #price = float(filtered_str)
     
+    getPrice(buf)

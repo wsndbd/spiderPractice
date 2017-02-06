@@ -85,23 +85,20 @@ def downloadImageAndPushToSever(buf, downloadLocal):
     imageUrl = "http://www.happystr.com/pic/" + pureImageName
     return imageUrl
 
-def getTitleAndPrice(buf):
+def getTitle(buf):
     pattern = re.compile('<div class="article-right".*?<em itemprop="name">\n(.*?)</em>.*?<span class="red">&nbsp;&nbsp;&nbsp;(.*?)</span></em>', re.S)
     items = re.findall(pattern, buf)
-    print "items", items
     for item in items:
         logger.error("item " + item[0] + item[1])
     logger.error("title " + items[0][0])
-    logger.error("price " + items[0][1])
-    string = items[0][1] 
-    string = string.decode("utf-8")
-    filtrate = re.compile(u'[0-9.]')#数字及.
-    strPrice = (''.join(re.findall(filtrate, items[0][1])))
     title = items[0][0]
-    logger.error("title " + title)
-    logger.error("price " + strPrice)
-    price = float(strPrice)
-    return (title, price)
+    return title
+
+def getPrice(buf):
+    pattern = re.compile('<meta property="og:product:price" content="(.*?)"')
+    items = re.findall(pattern, buf)
+    logger.error("price" + ''.join(items))
+    return items
 
 def worthy(buf):
     pattern = re.compile('id="rating_worthy_num">\n(.*?)<\/span>.*?"rating_unworthy_num">\n(.*?)<\/span>', re.S)
@@ -219,6 +216,12 @@ if __name__ == "__main__":
             buf = fCurl.read()
             fCurl.close()
 
+            pattern = re.compile('</html>')
+            items = re.findall(pattern, buf)
+            if (len(items) == 0):
+                logger.error("page not download completed!")
+                continue
+
             #judge page exist
             if not pageExist(buf):
                notFoundCount += 1
@@ -230,7 +233,8 @@ if __name__ == "__main__":
             #if not latestArticle(buf):
             #    continue
 
-            (title, price) = getTitleAndPrice(buf)
+            title = getTitle(buf)
+            price = getPrice(buf)
 
             if not worthy(buf):
                 continue
