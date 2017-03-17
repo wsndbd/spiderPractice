@@ -196,7 +196,7 @@ if __name__ == "__main__":
     logger.error("page " + str(page))
     pFile.close()
     
-    db = MySQLdb.connect("64.137.186.10","tt11","d123g224","tt11", charset='utf8' )
+    db = MySQLdb.connect("64.137.186.10","tt11","","tt11", charset='utf8' )
     cursor = db.cursor()
     cursor.execute("SET NAMES utf8")
     cursor.execute("SET CHARACTER_SET_CLIENT=utf8")
